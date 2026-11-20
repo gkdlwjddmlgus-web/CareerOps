@@ -118,3 +118,17 @@
 - 공개 산출물: outputs/CareerOps-v0.1.0-candidate.apk(저장소 밖).
 - APK SHA-256: `73C510DA0A5F035312F2B32DA1B4F8E53F69513ED9413B422885F60BC91304ED`.
 - 설치·실행·업데이트·실제 알림은 NOT RUN이므로 정식 안정 릴리스로 태그하지 않는다.
+
+## Learning Hub v0.2.0 — Phase 0 감사 및 계획
+
+- 실제 remote/브랜치/log/tag/Flutter version/doctor를 명령으로 확인했다.
+- v0.1 후보 `72321ea4d9145c220bc2db5bf843a8da05db96b9`를 develop에 푸시하고 원격 해시 일치를 확인했다.
+- 기존 main은 `47119f8`, 릴리스 태그 없음. 기존 date 파일·스키마 1·사용자 데이터 정책 보존.
+- feature/learning-hub-v0.2.0이 원격에 없음을 확인한 후 별도 로컬 브랜치 생성.
+- Phase 0은 요구사항/아키텍처/API 감사/데이터 모델/테스트 계획과 실제 HTTP 결과 문서만 추가한다.
+- 소량 공개 읽기: Open Library/GitHub/Stack Exchange/PyPI/Crossref/OpenAlex 200.
+  Google Books 429. Notion 토큰·공유 페이지가 없어 실제 인증/내보내기 NOT RUN/BLOCKED.
+- 공식 문서의 호출 제한·필수 헤더·라이선스·비용/개인정보 위험을 감사 문서에 기록했다.
+- 앱에 Learning Hub UI·HTTP·인증·신규 DB 스키마를 추가하지 않았다. 버전도 0.1.0으로 유지한다.
+- 동일 v0.1 기준 소스의 format/analyze/11개 테스트/APK/서명 PASS 결과를 감사 기준으로 사용한다.
+- 다음 Phase 1은 v0.1의 기기 검증 선행 조건이 충족되거나 사용자가 검증 범위를 변경한 뒤 착수한다.

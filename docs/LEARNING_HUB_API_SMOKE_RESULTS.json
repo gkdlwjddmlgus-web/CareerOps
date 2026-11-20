@@ -1,0 +1,58 @@
+[
+  {
+    "provider": "Open Library",
+    "status": 200,
+    "contentType": "application/json",
+    "retryAfter": "",
+    "remaining": "",
+    "checkedAt": "2026-11-20T05:54:00.8015969Z"
+  },
+  {
+    "provider": "Google Books",
+    "status": 429,
+    "contentType": "application/json; charset=UTF-8",
+    "retryAfter": "",
+    "remaining": "",
+    "checkedAt": "2026-11-20T05:54:01.1943579Z"
+  },
+  {
+    "provider": "GitHub",
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "retryAfter": "",
+    "remaining": "59",
+    "checkedAt": "2026-11-20T05:54:01.5452617Z"
+  },
+  {
+    "provider": "Stack Exchange",
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "retryAfter": "",
+    "remaining": "",
+    "checkedAt": "2026-11-20T05:54:01.8610422Z"
+  },
+  {
+    "provider": "PyPI",
+    "status": 200,
+    "contentType": "application/json",
+    "retryAfter": "",
+    "remaining": "",
+    "checkedAt": "2026-11-20T05:54:01.9527399Z"
+  },
+  {
+    "provider": "Crossref",
+    "status": 200,
+    "contentType": "application/json",
+    "retryAfter": "",
+    "remaining": "",
+    "checkedAt": "2026-11-20T05:54:02.8216567Z"
+  },
+  {
+    "provider": "OpenAlex",
+    "status": 200,
+    "contentType": "application/json",
+    "retryAfter": "",
+    "remaining": "990",
+    "checkedAt": "2026-11-20T05:54:04.9488447Z"
+  }
+]

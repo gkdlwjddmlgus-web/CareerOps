@@ -35,3 +35,6 @@ properties 필드: storeFile, storePassword, keyPassword, keyAlias.
 키가 없을 때 release 빌드는 실패하도록 구성하며 debug 키로 자동 배포하지 않는다.
 
 Learning Hub 0.2.0은 v0.1 기준선 검증을 선행 조건으로 별도 feature 브랜치에서 진행한다.
+Phase 0 감사와 계획은 docs/LEARNING_HUB_REQUIREMENTS.md, LEARNING_HUB_ARCHITECTURE.md,
+LEARNING_HUB_API_AUDIT.md, LEARNING_HUB_DATA_MODEL.md, LEARNING_HUB_TEST_PLAN.md를 참고한다.
+현재 feature 브랜치는 문서와 감사 결과만 추가하며 v0.2 실행 기능은 아직 제공하지 않는다.

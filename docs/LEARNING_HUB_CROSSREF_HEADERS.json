@@ -1,0 +1,14 @@
+[
+  {
+    "Header": "x-rate-limit-limit",
+    "Value": "1"
+  },
+  {
+    "Header": "x-rate-limit-interval",
+    "Value": "1s"
+  },
+  {
+    "Header": "x-concurrency-limit",
+    "Value": "1"
+  }
+]

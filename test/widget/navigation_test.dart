@@ -2,6 +2,7 @@ import 'package:careerops/app/app.dart';
 import 'package:careerops/core/database/database.dart';
 import 'package:careerops/features/tasks/task_repository.dart';
 import 'package:careerops/core/utils/dates.dart';
+import 'package:careerops/features/study/study_repository.dart';
 import 'package:drift/native.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,13 @@ void main() {
         overrides: [
           databaseProvider.overrideWithValue(db),
           tasksProvider.overrideWith((ref) => Stream.value(rows!)),
+          subjectsProvider.overrideWith((ref) => Stream.value(<Subject>[])),
+          unitsProvider.overrideWith((ref) => Stream.value(<StudyUnit>[])),
+          sessionsProvider.overrideWith(
+            (ref) => Stream.value(<StudySession>[]),
+          ),
+          timerProvider.overrideWith((ref) => Stream.value(null)),
+          tickProvider.overrideWith((ref) => const Stream.empty()),
         ],
         child: const CareerOpsApp(),
       ),

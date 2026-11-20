@@ -41,3 +41,18 @@
 - dart format: PASS. flutter analyze: PASS(No issues found, 27.6초).
 - flutter test: PASS(4개). 파일 DB 재연결·정렬·날짜 보존·명시적 이월·홈/캘린더 데이터 일치 검증.
 - 주간 학습 시간/채용 마감 목록은 해당 데이터 기능이 추가되는 Phase 3/4에서 홈에 연결한다.
+
+## Phase 3 — 학습 관리 완료
+
+- 과목/단원 CRUD, 단원 완료 수, 목표·누적 시간, 최근 학습 기록, 수동 기록.
+- Idle → Running → Paused → Completed → 저장. active_timers의 단일 행으로 재시작 복구.
+- Running은 저장된 구간 시작 시각과 경과 초를 합산. Paused 시간은 제외.
+- Completed의 running_since는 종료 시각으로 고정해 저장 지연을 기록에 포함하지 않는다.
+- 세션 삽입과 타이머 삭제는 트랜잭션. 중복 저장은 추가 세션을 만들지 않는다.
+- 학습 이력이 있는 과목 삭제는 FK RESTRICT로 차단한다.
+- 홈에 이번 주 누적 학습 시간 연결(지역 주간 경계, 월요일 시작).
+- 신규: features/study/study_repository.dart, study_screen.dart, test/database/study_test.dart.
+- 수정: router.dart, home_screen.dart, navigation_test.dart. 삭제 없음.
+- analyze의 비동기 BuildContext 검사 1건 수정 후 PASS(No issues found, 26.1초).
+- format 무변경 PASS(18개). flutter test PASS(5개), DB 재시작·pause/resume·100초 경과·정지 시각 고정·중복 저장 방지 검증.
+- 실기기 백그라운드 및 강제 종료 동작: NOT RUN.

@@ -81,3 +81,40 @@
 - pub get PASS. format PASS(27개). flutter analyze PASS(No issues found, 7.7초).
 - flutter test PASS(8개): 왕복 복원, 손상 JSON/버전/날짜/고아 FK 거부, 원본 보존, 알림 권한 거부/예약 실패/삭제 취소.
 - 실제 Android 알림/파일 선택/탭 동작은 아직 NOT RUN. Phase 6에서 에뮬레이터 검증 시도.
+
+## Phase 6 — 리포트·모듈형 구조·릴리스 후보
+
+- SQL로 일/주간·과목별 학습 시간, 예정일 기준 계획 완료율, 최초 지원일 기준 지원 건수,
+  전체 지원 단계 및 단원 완료율을 집계한다. 기간은 지역 월요일 시작, 저장은 UTC이다.
+- 홈에서 오늘 계획/추가 버튼을 먼저 표시하고 테마 색상·한국어 오류 안내를 정리했다.
+- 추가 요구사항에 따라 tasks/study/jobs/reports를 domain/data/presentation으로 분리.
+  순수 모델·Repository 인터페이스와 Local 구현을 분리하고 app/providers.dart에서 주입한다.
+- UI의 직접 SQL·Drift 모델·QueryRow 의존 제거. 백업/안전 복원도 Repository로 분리.
+- BackupRepository·ReminderRepository 역시 대체 가능. 직전 복원 되돌리기를 제공한다.
+- 기존 스키마 1 및 데이터는 변경하지 않았다. 외부 HTTP/API/서버/인증 기능은 앱에 추가하지 않았다.
+- 원본 screen/widgets 파일은 presentation/으로 이동했고, data/domain/Repository 매핑과 계약 테스트를 추가했다.
+- 리포트 스트림 테스트 초기 timeout은 명시적 구독 수명 관리로 해결했다.
+- 자동 수정과 소스 편집이 겹쳐 알림 파일 문법 오류가 발생한 실행은 FAIL로 기록.
+  검증된 HEAD 구현에서 계약을 다시 적용하고 이후 순차 검증했다.
+- 최종 flutter pub get PASS. cupertino_icons 1.0.9 추가로 보조 폰트 경고 보완.
+- 최종 flutter analyze PASS(No issues found, 113.4초). flutter test PASS(11개, 29초).
+  실제 DB 무결성·재시작·트랜잭션·백업·집계·로컬 Repository 계약,
+  SQLite 없는 대역 UI와 아키텍처 경계 포함. 권한 철회 원본 보존 회귀도 PASS.
+- format 무변경 검사 PASS(55개). git diff --check PASS. 추적된 키/DB/APK 및 인증정보 패턴 없음.
+- Android SDK 37 요구를 확인. SDK 실제 패키지명 android-37.0을 Gradle이 설치했다.
+  compile SDK 37 / target SDK 36 / min SDK 24 / Java 17. 프로젝트 전용 설정으로 공용 Flutter 설정 보존.
+- 전용 RSA 서명키 생성, 비밀정보는 저장소 밖에 저장. release에서 debug 키 자동 사용 제거.
+- `flutter build apk --release`: PASS, 793초, 60.1MB. 보조 폰트/최종 안내 문구를 포함한 증분 재빌드와 서명 검증은 후속 기록한다.
+- Android 실기기 및 에뮬레이터 온라인 확보 실패: 기기 테스트 NOT RUN. 상세는 KNOWN_ISSUES.md.
+- main/릴리스 태그/Release는 아직 생성·변경하지 않았다.
+
+### 최종 APK 검증
+
+- `flutter build apk --release --no-pub`: PASS, 207.7초. Cupertino/Material 폰트 포함 확인.
+- `apksigner verify --verbose --print-certs`: PASS, APK v2 서명, RSA 3072, signer 1개.
+- 인증서 SHA-256: `0d7dd7b854496a73bcdb40a8f9d9037af5048b77b82ae8063ebcf9d8cd3167d1`.
+- `aapt2 dump badging`: applicationId=com.careerops.planner, versionName=0.1.0, versionCode=1,
+  compileSdk=37, targetSdk=36, arm64-v8a/armeabi-v7a/x86_64 포함.
+- 공개 산출물: outputs/CareerOps-v0.1.0-candidate.apk(저장소 밖).
+- APK SHA-256: `73C510DA0A5F035312F2B32DA1B4F8E53F69513ED9413B422885F60BC91304ED`.
+- 설치·실행·업데이트·실제 알림은 NOT RUN이므로 정식 안정 릴리스로 태그하지 않는다.

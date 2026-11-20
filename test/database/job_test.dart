@@ -1,5 +1,5 @@
 import 'package:careerops/core/database/database.dart';
-import 'package:careerops/features/jobs/job_repository.dart';
+import 'package:careerops/features/jobs/data/job_store.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

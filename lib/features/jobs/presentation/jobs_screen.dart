@@ -1,24 +1,23 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/database.dart';
-import '../../core/utils/dates.dart';
-import '../../core/widgets/common.dart';
-import 'job_repository.dart';
-import '../../core/notifications/reminder_dialog.dart';
+import '../../../core/utils/dates.dart';
+import '../../../core/widgets/common.dart';
+import '../job_repository.dart';
+import '../../../core/notifications/reminder_dialog.dart';
 
 class JobsScreen extends ConsumerWidget {
   const JobsScreen({super.key, this.companyId});
   final int? companyId;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final db = ref.watch(databaseProvider);
+    final db = ref.watch(jobRepositoryProvider);
     final events = ref.watch(eventsProvider).value ?? <ApplicationEvent>[];
     return ref
         .watch(companiesProvider)
         .when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Center(child: Text('$e')),
+          error: (e, s) => Center(child: Text('데이터를 불러오지 못했습니다. 다시 열어 주세요.')),
           data: (companies) => ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -119,7 +118,7 @@ class JobsScreen extends ConsumerWidget {
 
 Future<void> editCompany(
   BuildContext context,
-  AppDatabase db, {
+  JobRepository db, {
   Company? company,
 }) async {
   final name = TextEditingController(text: company?.name),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
 import 'app/router.dart';
 import 'core/notifications/notification_service.dart';
+import 'app/providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ Future<void> main() async {
     overrides: [notificationBackendProvider.overrideWithValue(backend)],
   );
   final service = container.read(notificationServiceProvider);
-  service.lastError.value = startupError;
+  if (service is NotificationService) service.lastError.value = startupError;
   service.watch();
   runApp(
     UncontrolledProviderScope(

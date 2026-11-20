@@ -1,13 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/home/home_screen.dart';
-import '../features/calendar/calendar_screen.dart';
-import '../features/study/study_screen.dart';
-import '../features/jobs/jobs_screen.dart';
-import '../features/settings/settings_screen.dart';
-import '../features/tasks/task_widgets.dart';
-import '../core/database/database.dart';
+import '../features/home/presentation/home_screen.dart';
+import '../features/calendar/presentation/calendar_screen.dart';
+import '../features/study/presentation/study_screen.dart';
+import '../features/jobs/presentation/jobs_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
+import '../features/reports/presentation/reports_screen.dart';
+import '../features/tasks/presentation/task_widgets.dart';
+import 'providers.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,6 +36,7 @@ final appRouter = GoRouter(
               1 => const StudyScreen(),
               2 => const JobsScreen(),
               3 => const CalendarScreen(),
+              4 => const ReportsScreen(),
               _ => Center(child: Text('${tabNames[i]} · 준비 중')),
             },
           ),
@@ -64,23 +66,19 @@ class TaskDetailScreen extends ConsumerWidget {
   final int id;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final db = ref.watch(databaseProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('할 일 상세')),
-      body: StreamBuilder(
-        stream: (db.select(
-          db.tasks,
-        )..where((t) => t.id.equals(id))).watchSingleOrNull(),
-        builder: (context, snapshot) => Padding(
-          padding: const EdgeInsets.all(16),
-          child: snapshot.hasError
-              ? Text('${snapshot.error}')
-              : snapshot.connectionState == ConnectionState.waiting
-              ? const CircularProgressIndicator()
-              : snapshot.data == null
-              ? const Text('삭제된 할 일입니다.')
-              : TaskList(tasks: [snapshot.data!]),
-        ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ref
+            .watch(taskProvider(id))
+            .when(
+              loading: () => const CircularProgressIndicator(),
+              error: (e, s) => Text('$e'),
+              data: (task) => task == null
+                  ? const Text('삭제된 할 일입니다.')
+                  : TaskList(tasks: [task]),
+            ),
       ),
     );
   }

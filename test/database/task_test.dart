@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:careerops/core/database/database.dart';
-import 'package:careerops/features/tasks/task_repository.dart';
+import 'package:careerops/features/tasks/data/task_store.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

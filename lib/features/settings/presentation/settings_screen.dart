@@ -1,16 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
-import '../../core/database/database.dart' hide Notification;
-import '../../core/backup/backup_service.dart';
-import '../../core/notifications/notification_service.dart';
-import '../../core/widgets/common.dart';
+import '../../../app/providers.dart';
+import '../../../core/widgets/common.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -29,8 +25,7 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final db = ref.watch(databaseProvider);
-    final backup = BackupService(db);
+    final backup = ref.watch(backupRepositoryProvider);
     final service = ref.watch(notificationServiceProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('설정')),
@@ -90,30 +85,47 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
                           )) {
                             return;
                           }
-                          final directory =
-                              await getApplicationSupportDirectory();
-                          final safety = File(
-                            '${directory.path}/before-restore-${DateTime.now().millisecondsSinceEpoch}.json',
-                          );
-                          await safety.writeAsString(
-                            await backup.export(),
-                            flush: true,
-                          );
-                          await backup.restore(text);
+                          final safety = await backup.restore(text);
+                          String? notificationError;
                           try {
                             await service.reconcile();
                           } catch (error) {
-                            service.lastError.value =
-                                '데이터 복원 완료, 알림 재예약 실패: $error';
+                            notificationError = '알림을 재예약하지 못했습니다. 권한을 확인해 주세요.';
                           }
                           if (mounted) {
                             setState(
                               () => message =
-                                  '데이터 복원을 완료했습니다. 이전 데이터 안전 백업: ${safety.path}',
+                                  '데이터 복원을 완료했습니다. 이전 데이터 안전 백업: $safety${notificationError == null ? '' : '\n$notificationError'}',
                             );
                           }
                         }),
                   child: const Text('파일에서 복원'),
+                ),
+                TextButton(
+                  onPressed: busy
+                      ? null
+                      : () => _run(() async {
+                          final text = await backup.previousRestoreBackup();
+                          if (text == null) {
+                            if (mounted) {
+                              setState(() => message = '직전 복원 안전 백업이 없습니다.');
+                            }
+                            return;
+                          }
+                          if (!context.mounted ||
+                              !await confirm(
+                                context,
+                                '직전 복원 전의 데이터로 되돌릴까요? 현재 데이터도 안전 백업됩니다.',
+                              )) {
+                            return;
+                          }
+                          await backup.restore(text);
+                          await service.reconcile();
+                          if (mounted) {
+                            setState(() => message = '직전 복원 전 데이터로 되돌렸습니다.');
+                          }
+                        }),
+                  child: const Text('직전 복원 되돌리기'),
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -136,7 +148,7 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
                       ? null
                       : () => _run(() async {
                           final allowed = await ref
-                              .read(notificationBackendProvider)
+                              .read(notificationServiceProvider)
                               .permission(request: true);
                           if (mounted) {
                             setState(
@@ -152,13 +164,13 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
                   valueListenable: service.lastError,
                   builder: (context, error, child) => error == null
                       ? const SizedBox.shrink()
-                      : Text('알림 처리 오류: $error'),
+                      : Text('알림을 처리하지 못했습니다. 권한과 기기 설정을 확인해 주세요.'),
                 ),
                 ref
                     .watch(notificationsProvider)
                     .when(
                       loading: () => const LinearProgressIndicator(),
-                      error: (e, s) => Text('$e'),
+                      error: (e, s) => Text('데이터를 불러오지 못했습니다. 다시 열어 주세요.'),
                       data: (rows) => Column(
                         children: [
                           for (final row in rows)

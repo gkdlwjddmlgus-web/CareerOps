@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/common.dart';
-import 'notification_service.dart';
+import '../../app/providers.dart';
 
 Future<void> configureReminder(
   BuildContext context,

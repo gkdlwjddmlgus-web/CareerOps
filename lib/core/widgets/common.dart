@@ -8,8 +8,14 @@ Future<void> perform(
     await action();
   } catch (error) {
     if (context.mounted) {
+      final message = switch (error) {
+        ArgumentError e => e.message?.toString() ?? '입력값을 확인해 주세요.',
+        StateError e => e.message,
+        FormatException e => e.message,
+        _ => '작업을 완료하지 못했습니다. 입력값과 연결된 기록을 확인해 주세요.',
+      };
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('저장하지 못했습니다: $error')));
+          .showSnackBar(SnackBar(content: Text(message)));
     }
   }
 }

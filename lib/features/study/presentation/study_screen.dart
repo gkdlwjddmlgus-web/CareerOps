@@ -1,10 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/database.dart';
-import '../../core/utils/dates.dart';
-import '../../core/widgets/common.dart';
-import 'study_repository.dart';
+import '../../../core/utils/dates.dart';
+import '../../../core/widgets/common.dart';
+import '../study_repository.dart';
 
 class StudyScreen extends ConsumerWidget {
   const StudyScreen({super.key});
@@ -19,7 +18,7 @@ class StudyScreen extends ConsumerWidget {
         .watch(subjectsProvider)
         .when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Center(child: Text('$e')),
+          error: (e, s) => Center(child: Text('데이터를 불러오지 못했습니다. 다시 열어 주세요.')),
           data: (subjects) => ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -213,7 +212,7 @@ class StudyScreen extends ConsumerWidget {
 
 Future<void> editSubject(
   BuildContext context,
-  StudyService service, {
+  StudyRepository service, {
   Subject? subject,
 }) async {
   final name = TextEditingController(text: subject?.name),
@@ -284,7 +283,7 @@ Future<void> editSubject(
 
 Future<void> editUnit(
   BuildContext context,
-  StudyService service,
+  StudyRepository service,
   int subjectId, {
   StudyUnit? unit,
 }) async {
@@ -327,7 +326,7 @@ Future<void> editUnit(
 
 Future<void> manualSession(
   BuildContext context,
-  StudyService service,
+  StudyRepository service,
   Subject subject,
 ) async {
   final minutes = TextEditingController(), note = TextEditingController();

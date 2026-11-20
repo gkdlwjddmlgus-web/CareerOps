@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/database.dart';
-import '../../core/utils/dates.dart';
-import '../../core/widgets/common.dart';
-import 'task_repository.dart';
-import '../../core/notifications/reminder_dialog.dart';
+import '../../../core/utils/dates.dart';
+import '../../../core/widgets/common.dart';
+import '../task_repository.dart';
+import '../../../core/notifications/reminder_dialog.dart';
 
 const categoryLabels = {'GENERAL': '일반', 'STUDY': '학습', 'JOB': '취업'};
 const priorities = ['낮음', '보통', '높음'];
@@ -22,7 +21,7 @@ class TaskList extends ConsumerWidget {
         child: Text('등록된 할 일이 없습니다.'),
       );
     }
-    final db = ref.watch(databaseProvider);
+    final db = ref.watch(taskRepositoryProvider);
     return Column(
       children: [
         for (final task in sorted)
@@ -92,7 +91,7 @@ class TaskList extends ConsumerWidget {
 
 Future<void> editTask(
   BuildContext context,
-  AppDatabase db, {
+  TaskRepository db, {
   Task? task,
   DateTime? initialDate,
 }) async {

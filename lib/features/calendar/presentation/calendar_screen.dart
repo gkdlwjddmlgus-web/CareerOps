@@ -1,12 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/database.dart';
-import '../../core/utils/dates.dart';
-import '../../core/widgets/common.dart';
-import '../tasks/task_repository.dart';
-import '../tasks/task_widgets.dart';
-import '../jobs/job_repository.dart';
+import '../../../core/utils/dates.dart';
+import '../../../core/widgets/common.dart';
+import '../../tasks/task_repository.dart';
+import '../../tasks/presentation/task_widgets.dart';
+import '../../jobs/job_repository.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -24,7 +23,7 @@ class _CalendarState extends ConsumerState<CalendarScreen> {
           .watch(companiesProvider)
           .when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, s) => Text('$e'),
+            error: (e, s) => Text('데이터를 불러오지 못했습니다. 다시 열어 주세요.'),
             data: (companies) => SectionCard(
               title: '선택 날짜 채용 마감',
               child: Column(
@@ -47,8 +46,11 @@ class _CalendarState extends ConsumerState<CalendarScreen> {
         onDateChanged: (value) => setState(() => date = value),
       ),
       FilledButton.icon(
-        onPressed: () =>
-            editTask(context, ref.read(databaseProvider), initialDate: date),
+        onPressed: () => editTask(
+          context,
+          ref.read(taskRepositoryProvider),
+          initialDate: date,
+        ),
         icon: const Icon(Icons.add),
         label: const Text('선택 날짜에 일정 추가'),
       ),
@@ -56,7 +58,7 @@ class _CalendarState extends ConsumerState<CalendarScreen> {
           .watch(tasksProvider)
           .when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, s) => Text('$e'),
+            error: (e, s) => Text('데이터를 불러오지 못했습니다. 다시 열어 주세요.'),
             data: (tasks) => SectionCard(
               title: dateKey(date),
               child: TaskList(

@@ -1,6 +1,6 @@
 import 'package:careerops/core/database/database.dart';
 import 'package:careerops/core/notifications/notification_service.dart';
-import 'package:careerops/features/tasks/task_repository.dart';
+import 'package:careerops/features/tasks/data/task_store.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -68,6 +68,16 @@ void main() {
       backend.fail = false;
       await service.configure(taskId: task.id, at: at);
       expect(backend.ids.length, 1);
+      backend.allowed = false;
+      await service.reconcile();
+      expect(backend.ids, isEmpty);
+      expect(
+        (await db.select(db.notifications).get()).single.isEnabled,
+        isFalse,
+      );
+      expect((await db.select(db.tasks).get()).single.title, '원본 일정');
+      backend.allowed = true;
+      await service.configure(taskId: task.id, at: at);
       await db.deleteTask(task.id);
       await service.reconcile();
       expect(backend.ids, isEmpty);

@@ -1,13 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/database.dart';
-import '../../core/utils/dates.dart';
-import '../../core/widgets/common.dart';
-import '../tasks/task_repository.dart';
-import '../tasks/task_widgets.dart';
-import '../study/study_repository.dart';
-import '../jobs/job_repository.dart';
+import '../../../core/utils/dates.dart';
+import '../../../core/widgets/common.dart';
+import '../../tasks/task_repository.dart';
+import '../../tasks/presentation/task_widgets.dart';
+import '../../study/study_repository.dart';
+import '../../jobs/job_repository.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -16,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
       .watch(tasksProvider)
       .when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('불러오기 실패: $e')),
+        error: (e, s) => Center(child: Text('데이터를 불러오지 못했습니다. 다시 열어 주세요.')),
         data: (tasks) {
           final today = dateKey(DateTime.now());
           final current = tasks.where((t) => t.scheduledDate == today).toList();
@@ -29,11 +28,23 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Text(today, style: Theme.of(context).textTheme.headlineSmall),
+              FilledButton.icon(
+                onPressed: () =>
+                    editTask(context, ref.read(taskRepositoryProvider)),
+                icon: const Icon(Icons.add),
+                label: const Text('할 일 추가'),
+              ),
+              const SizedBox(height: 16),
+              SectionCard(
+                title:
+                    '오늘 할 일 · ${current.where((t) => t.isCompleted).length}/${current.length} 완료',
+                child: TaskList(tasks: current),
+              ),
               ref
                   .watch(companiesProvider)
                   .when(
                     loading: () => const LinearProgressIndicator(),
-                    error: (e, s) => Text('마감 조회 실패: $e'),
+                    error: (e, s) => Text('채용 마감을 불러오지 못했습니다.'),
                     data: (companies) {
                       final deadlines =
                           companies
@@ -76,7 +87,7 @@ class HomeScreen extends ConsumerWidget {
                   .watch(sessionsProvider)
                   .when(
                     loading: () => const LinearProgressIndicator(),
-                    error: (e, s) => Text('학습 시간 조회 실패: $e'),
+                    error: (e, s) => Text('학습 시간을 불러오지 못했습니다.'),
                     data: (sessions) {
                       final start = weekStart(DateTime.now());
                       final end = start.add(const Duration(days: 7));
@@ -92,17 +103,6 @@ class HomeScreen extends ConsumerWidget {
                       );
                     },
                   ),
-              FilledButton.icon(
-                onPressed: () => editTask(context, ref.read(databaseProvider)),
-                icon: const Icon(Icons.add),
-                label: const Text('할 일 추가'),
-              ),
-              const SizedBox(height: 16),
-              SectionCard(
-                title:
-                    '오늘 할 일 · ${current.where((t) => t.isCompleted).length}/${current.length} 완료',
-                child: TaskList(tasks: current),
-              ),
               if (overdue.isNotEmpty)
                 SectionCard(
                   title: '이전 날짜 미완료 · ${overdue.length}건',

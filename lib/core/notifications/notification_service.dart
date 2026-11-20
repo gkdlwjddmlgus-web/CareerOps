@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../database/database.dart' hide Notification;
+import 'reminder_repository.dart';
 
 abstract class NotificationBackend {
   Future<bool> permission({bool request = false});
@@ -91,27 +92,32 @@ class AndroidNotificationBackend implements NotificationBackend {
       : [];
 }
 
-final notificationBackendProvider = Provider<NotificationBackend>(
-  (ref) => AndroidNotificationBackend(),
-);
-final notificationServiceProvider = Provider((ref) {
-  final service = NotificationService(
-    ref.watch(databaseProvider),
-    ref.watch(notificationBackendProvider),
-  );
-  ref.onDispose(service.dispose);
-  return service;
-});
-final notificationsProvider = StreamProvider((ref) {
-  final db = ref.watch(databaseProvider);
-  return db.select(db.notifications).watch();
-});
-
-class NotificationService {
+class NotificationService implements ReminderRepository {
   NotificationService(this.db, this.backend);
+  @override
+  Stream<List<Reminder>> watchReminders() => db
+      .select(db.notifications)
+      .watch()
+      .map(
+        (rows) => [
+          for (final r in rows)
+            Reminder(
+              id: r.id,
+              taskId: r.taskId,
+              companyId: r.companyId,
+              scheduledAt: r.scheduledAt,
+              isEnabled: r.isEnabled,
+              platformNotificationId: r.platformNotificationId,
+            ),
+        ],
+      );
+  @override
+  Future<bool> permission({bool request = false}) =>
+      backend.permission(request: request);
   final AppDatabase db;
   final NotificationBackend backend;
-  final lastError = ValueNotifier<String?>(null);
+  @override
+  final ValueNotifier<String?> lastError = ValueNotifier<String?>(null);
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   Future<void> _queue = Future.value();
   bool _disposed = false;
@@ -121,6 +127,7 @@ class NotificationService {
     return next;
   }
 
+  @override
   void watch() {
     if (_subscriptions.isNotEmpty) return;
     for (final stream in [
@@ -147,6 +154,7 @@ class NotificationService {
     }
   }
 
+  @override
   void dispose() {
     _disposed = true;
     for (final subscription in _subscriptions) {
@@ -155,6 +163,7 @@ class NotificationService {
     lastError.dispose();
   }
 
+  @override
   Future<void> configure({
     int? taskId,
     int? companyId,
@@ -239,6 +248,7 @@ class NotificationService {
         : company.name;
   }
 
+  @override
   Future<void> cancel(int id) => _serialized(() async {
     final row = await (db.select(
       db.notifications,
@@ -249,6 +259,7 @@ class NotificationService {
       const NotificationsCompanion(isEnabled: Value(false)),
     );
   });
+  @override
   Future<void> reconcile() => _serialized(() async {
     final rows = await db.select(db.notifications).get();
     final desired = <int>{};
@@ -256,7 +267,10 @@ class NotificationService {
     for (final row in rows.where((r) => r.isEnabled)) {
       final title = await _title(row.taskId, row.companyId);
       final at = DateTime.parse(row.scheduledAt);
-      if (title == null || !at.isAfter(DateTime.now())) {
+      if (title == null || !at.isAfter(DateTime.now()) || !allowed) {
+        if (!allowed) {
+          lastError.value = '알림 권한이 없어 예약을 해제했습니다. 원본 일정은 유지됩니다.';
+        }
         await backend.cancel(row.platformNotificationId);
         await (db.update(db.notifications)..where((t) => t.id.equals(row.id)))
             .write(const NotificationsCompanion(isEnabled: Value(false)));

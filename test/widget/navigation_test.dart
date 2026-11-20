@@ -1,51 +1,43 @@
 import 'package:careerops/app/app.dart';
-import 'package:careerops/core/database/database.dart';
-import 'package:careerops/features/tasks/task_repository.dart';
+import 'package:careerops/app/providers.dart';
 import 'package:careerops/core/utils/dates.dart';
-import 'package:careerops/features/study/study_repository.dart';
-import 'package:careerops/features/jobs/job_repository.dart';
-import 'package:careerops/core/notifications/notification_service.dart';
-import 'package:drift/native.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/fake_repositories.dart';
+
 void main() {
   testWidgets('five tabs and settings are reachable', (tester) async {
-    final db = AppDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    await tester.runAsync(
-      () => db.saveTask(
-        title: '공유 일정',
-        category: 'STUDY',
-        date: dateKey(DateTime.now()),
-        priority: 2,
-      ),
+    final tasks = MemoryTaskRepository();
+    final reminders = FakeReminderRepository();
+    addTearDown(tasks.close);
+    addTearDown(reminders.dispose);
+    await tasks.saveTask(
+      title: '공유 일정',
+      category: 'STUDY',
+      date: dateKey(DateTime.now()),
+      priority: 2,
     );
-    final rows = await tester.runAsync(() => db.select(db.tasks).get());
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          databaseProvider.overrideWithValue(db),
-          tasksProvider.overrideWith((ref) => Stream.value(rows!)),
-          subjectsProvider.overrideWith((ref) => Stream.value(<Subject>[])),
-          unitsProvider.overrideWith((ref) => Stream.value(<StudyUnit>[])),
-          sessionsProvider.overrideWith(
-            (ref) => Stream.value(<StudySession>[]),
-          ),
-          timerProvider.overrideWith((ref) => Stream.value(null)),
+          taskRepositoryProvider.overrideWithValue(tasks),
+          studyServiceProvider.overrideWithValue(FakeStudyRepository()),
+          jobRepositoryProvider.overrideWithValue(FakeJobRepository()),
+          reportRepositoryProvider.overrideWithValue(FakeReportRepository()),
+          backupRepositoryProvider.overrideWithValue(FakeBackupRepository()),
+          notificationServiceProvider.overrideWithValue(reminders),
           tickProvider.overrideWith((ref) => const Stream.empty()),
-          notificationsProvider.overrideWith((ref) => Stream.value([])),
-          companiesProvider.overrideWith((ref) => Stream.value(<Company>[])),
-          eventsProvider.overrideWith(
-            (ref) => Stream.value(<ApplicationEvent>[]),
-          ),
         ],
         child: const CareerOpsApp(),
       ),
     );
     await tester.pumpAndSettle();
     expect(find.text('공유 일정'), findsOneWidget);
+    await tester.tap(find.byType(Checkbox).first);
+    await tester.pumpAndSettle();
+    expect(tasks.rows.single.isCompleted, isTrue);
     for (final name in ['학습', '취업', '일정', '리포트', '홈']) {
       await tester.tap(
         find.descendant(

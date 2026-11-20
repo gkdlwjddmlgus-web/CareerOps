@@ -3,6 +3,7 @@ import 'package:careerops/core/database/database.dart';
 import 'package:careerops/features/tasks/task_repository.dart';
 import 'package:careerops/core/utils/dates.dart';
 import 'package:careerops/features/study/study_repository.dart';
+import 'package:careerops/features/jobs/job_repository.dart';
 import 'package:drift/native.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +34,10 @@ void main() {
           ),
           timerProvider.overrideWith((ref) => Stream.value(null)),
           tickProvider.overrideWith((ref) => const Stream.empty()),
+          companiesProvider.overrideWith((ref) => Stream.value(<Company>[])),
+          eventsProvider.overrideWith(
+            (ref) => Stream.value(<ApplicationEvent>[]),
+          ),
         ],
         child: const CareerOpsApp(),
       ),
@@ -49,6 +54,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(NavigationBar), findsOneWidget);
       if (name == '일정' || name == '홈') {
+        await tester.scrollUntilVisible(
+          find.text('공유 일정'),
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
         expect(find.text('공유 일정'), findsOneWidget);
       }
     }

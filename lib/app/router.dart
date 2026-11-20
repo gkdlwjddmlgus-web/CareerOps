@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../features/home/home_screen.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/study/study_screen.dart';
+import '../features/jobs/jobs_screen.dart';
 
 const tabNames = ['홈', '학습', '취업', '일정', '리포트'];
 const tabPaths = ['/', '/study', '/jobs', '/calendar', '/reports'];
@@ -27,6 +28,7 @@ final appRouter = GoRouter(
             builder: (context, state) => switch (i) {
               0 => const HomeScreen(),
               1 => const StudyScreen(),
+              2 => const JobsScreen(),
               3 => const CalendarScreen(),
               _ => Center(child: Text('${tabNames[i]} · 준비 중')),
             },

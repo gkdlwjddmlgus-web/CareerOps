@@ -6,6 +6,7 @@ import '../../core/utils/dates.dart';
 import '../../core/widgets/common.dart';
 import '../tasks/task_repository.dart';
 import '../tasks/task_widgets.dart';
+import '../jobs/job_repository.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -19,6 +20,26 @@ class _CalendarState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) => ListView(
     padding: const EdgeInsets.all(16),
     children: [
+      ref
+          .watch(companiesProvider)
+          .when(
+            loading: () => const LinearProgressIndicator(),
+            error: (e, s) => Text('$e'),
+            data: (companies) => SectionCard(
+              title: '선택 날짜 채용 마감',
+              child: Column(
+                children: [
+                  for (final company in companies.where(
+                    (c) => c.deadlineDate == dateKey(date),
+                  ))
+                    ListTile(
+                      title: Text(company.name),
+                      subtitle: Text(company.position),
+                    ),
+                ],
+              ),
+            ),
+          ),
       CalendarDatePicker(
         initialDate: date,
         firstDate: DateTime(2000),

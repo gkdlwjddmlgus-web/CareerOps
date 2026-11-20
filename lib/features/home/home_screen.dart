@@ -7,6 +7,7 @@ import '../../core/widgets/common.dart';
 import '../tasks/task_repository.dart';
 import '../tasks/task_widgets.dart';
 import '../study/study_repository.dart';
+import '../jobs/job_repository.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,48 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Text(today, style: Theme.of(context).textTheme.headlineSmall),
+              ref
+                  .watch(companiesProvider)
+                  .when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (e, s) => Text('마감 조회 실패: $e'),
+                    data: (companies) {
+                      final deadlines =
+                          companies
+                              .where(
+                                (c) =>
+                                    deadlineWithin(c, DateTime.now(), 7) &&
+                                    ![
+                                      'REJECTED',
+                                      'WITHDRAWN',
+                                      'CANCELLED',
+                                      'OFFER',
+                                    ].contains(c.status),
+                              )
+                              .toList()
+                            ..sort(
+                              (a, b) =>
+                                  a.deadlineDate!.compareTo(b.deadlineDate!),
+                            );
+                      return SectionCard(
+                        title: '7일 이내 채용 마감',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: deadlines.isEmpty
+                              ? [const Text('예정된 마감이 없습니다.')]
+                              : [
+                                  for (final company in deadlines)
+                                    ListTile(
+                                      title: Text(company.name),
+                                      subtitle: Text(
+                                        '${company.position} · ${company.deadlineDate}',
+                                      ),
+                                    ),
+                                ],
+                        ),
+                      );
+                    },
+                  ),
               const SizedBox(height: 16),
               ref
                   .watch(sessionsProvider)

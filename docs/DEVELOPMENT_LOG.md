@@ -56,3 +56,14 @@
 - analyze의 비동기 BuildContext 검사 1건 수정 후 PASS(No issues found, 26.1초).
 - format 무변경 PASS(18개). flutter test PASS(5개), DB 재시작·pause/resume·100초 경과·정지 시각 고정·중복 저장 방지 검증.
 - 실기기 백그라운드 및 강제 종료 동작: NOT RUN.
+
+## Phase 4 — 취업 관리 완료
+
+- 기업 CRUD(직무·지역·URL·마감일·메모·생성/수정 시각), 9개 지원 상태와 별도 변경 이력.
+- 상태 변경+이력 삽입 트랜잭션. 처음 APPLIED로 전환할 때 최초 지원일을 기록하고 이후 유지.
+- 홈의 7일 이내 마감 목록, 캘린더의 선택 날짜 채용 마감 연동.
+- 신규: features/jobs/job_repository.dart, jobs_screen.dart, test/database/job_test.dart.
+- 수정: router.dart, home_screen.dart, calendar_screen.dart, navigation_test.dart. 삭제 없음.
+- 최초 UI 회귀 테스트는 화면 아래 항목을 스크롤하지 않아 FAIL. 스크롤로 동일 일정 표시를 확인하도록 수정.
+- format PASS. flutter analyze PASS(No issues found, 16.0초).
+- flutter test PASS(6개). 마감일 경계, 최초 지원일 유지, 이력 INSERT 실패 시 회사 상태까지 롤백 검증.

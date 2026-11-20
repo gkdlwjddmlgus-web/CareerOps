@@ -1,0 +1,50 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/database/database.dart';
+import '../../core/utils/dates.dart';
+import '../../core/widgets/common.dart';
+import '../tasks/task_repository.dart';
+import '../tasks/task_widgets.dart';
+
+class CalendarScreen extends ConsumerStatefulWidget {
+  const CalendarScreen({super.key});
+  @override
+  ConsumerState<CalendarScreen> createState() => _CalendarState();
+}
+
+class _CalendarState extends ConsumerState<CalendarScreen> {
+  DateTime date = DateTime.now();
+  @override
+  Widget build(BuildContext context) => ListView(
+    padding: const EdgeInsets.all(16),
+    children: [
+      CalendarDatePicker(
+        initialDate: date,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100),
+        onDateChanged: (value) => setState(() => date = value),
+      ),
+      FilledButton.icon(
+        onPressed: () =>
+            editTask(context, ref.read(databaseProvider), initialDate: date),
+        icon: const Icon(Icons.add),
+        label: const Text('선택 날짜에 일정 추가'),
+      ),
+      ref
+          .watch(tasksProvider)
+          .when(
+            loading: () => const LinearProgressIndicator(),
+            error: (e, s) => Text('$e'),
+            data: (tasks) => SectionCard(
+              title: dateKey(date),
+              child: TaskList(
+                tasks: tasks
+                    .where((t) => t.scheduledDate == dateKey(date))
+                    .toList(),
+              ),
+            ),
+          ),
+    ],
+  );
+}

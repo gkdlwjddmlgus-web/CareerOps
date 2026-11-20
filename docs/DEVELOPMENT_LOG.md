@@ -28,3 +28,16 @@
 - `flutter test`: PASS, 3개(DB 초기화/외래키·CHECK 제약/5개 탭과 설정 이동).
 - `git diff --check`: PASS.
 - APK 및 실기기 검증: NOT RUN (후속 Phase).
+
+## Phase 2 — 할 일 및 일정 완료
+
+- 할 일 CRUD, 유형·우선순위·예정일·마감 시각, 완료 토글 구현.
+- 홈의 오늘 목록/이전 날짜 미완료, 완료 수, 우선순위 정렬.
+- 월간 캘린더 선택 날짜 조회, 사용자 지정 날짜로 명시적 이월.
+- 홈과 캘린더는 동일 tasks 스트림을 사용한다.
+- 신규: core/utils/dates.dart, core/widgets/common.dart, features/tasks/*, features/home/home_screen.dart, features/calendar/calendar_screen.dart, test/database/task_test.dart.
+- 수정: app/router.dart, test/widget/navigation_test.dart. 삭제 없음.
+- 최초 analyze 스타일 안내 3건을 수정.
+- dart format: PASS. flutter analyze: PASS(No issues found, 27.6초).
+- flutter test: PASS(4개). 파일 DB 재연결·정렬·날짜 보존·명시적 이월·홈/캘린더 데이터 일치 검증.
+- 주간 학습 시간/채용 마감 목록은 해당 데이터 기능이 추가되는 Phase 3/4에서 홈에 연결한다.

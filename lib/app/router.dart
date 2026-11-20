@@ -1,6 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/home/home_screen.dart';
+import '../features/calendar/calendar_screen.dart';
+
 const tabNames = ['홈', '학습', '취업', '일정', '리포트'];
 const tabPaths = ['/', '/study', '/jobs', '/calendar', '/reports'];
 const tabIcons = [
@@ -20,8 +23,11 @@ final appRouter = GoRouter(
         for (var i = 0; i < tabPaths.length; i++)
           GoRoute(
             path: tabPaths[i],
-            builder: (context, state) =>
-                Center(child: Text('${tabNames[i]} · 준비 중')),
+            builder: (context, state) => switch (i) {
+              0 => const HomeScreen(),
+              3 => const CalendarScreen(),
+              _ => Center(child: Text('${tabNames[i]} · 준비 중')),
+            },
           ),
       ],
     ),

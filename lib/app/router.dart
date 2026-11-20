@@ -5,6 +5,11 @@ import '../features/home/home_screen.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/study/study_screen.dart';
 import '../features/jobs/jobs_screen.dart';
+import '../features/settings/settings_screen.dart';
+import '../features/tasks/task_widgets.dart';
+import '../core/database/database.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const tabNames = ['홈', '학습', '취업', '일정', '리포트'];
 const tabPaths = ['/', '/study', '/jobs', '/calendar', '/reports'];
@@ -37,13 +42,49 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/task/:id',
+      builder: (context, state) =>
+          TaskDetailScreen(id: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: '/company/:id',
       builder: (context, state) => Scaffold(
-        appBar: AppBar(title: const Text('설정')),
-        body: const Center(child: Text('기기 설정에 따라 밝은 테마와 어두운 테마가 적용됩니다.')),
+        appBar: AppBar(title: const Text('기업 상세')),
+        body: JobsScreen(companyId: int.parse(state.pathParameters['id']!)),
       ),
     ),
   ],
 );
+
+class TaskDetailScreen extends ConsumerWidget {
+  const TaskDetailScreen({super.key, required this.id});
+  final int id;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final db = ref.watch(databaseProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('할 일 상세')),
+      body: StreamBuilder(
+        stream: (db.select(
+          db.tasks,
+        )..where((t) => t.id.equals(id))).watchSingleOrNull(),
+        builder: (context, snapshot) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: snapshot.hasError
+              ? Text('${snapshot.error}')
+              : snapshot.connectionState == ConnectionState.waiting
+              ? const CircularProgressIndicator()
+              : snapshot.data == null
+              ? const Text('삭제된 할 일입니다.')
+              : TaskList(tasks: [snapshot.data!]),
+        ),
+      ),
+    );
+  }
+}
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.path, required this.child});

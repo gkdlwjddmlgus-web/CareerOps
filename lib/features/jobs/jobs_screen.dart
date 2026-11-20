@@ -5,9 +5,11 @@ import '../../core/database/database.dart';
 import '../../core/utils/dates.dart';
 import '../../core/widgets/common.dart';
 import 'job_repository.dart';
+import '../../core/notifications/reminder_dialog.dart';
 
 class JobsScreen extends ConsumerWidget {
-  const JobsScreen({super.key});
+  const JobsScreen({super.key, this.companyId});
+  final int? companyId;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final db = ref.watch(databaseProvider);
@@ -30,9 +32,12 @@ class JobsScreen extends ConsumerWidget {
                   padding: EdgeInsets.all(24),
                   child: Text('관심 기업과 입사지원 정보를 등록하세요.'),
                 ),
-              for (final company in companies)
+              for (final company in companies.where(
+                (c) => companyId == null || c.id == companyId,
+              ))
                 Card(
                   child: ExpansionTile(
+                    initiallyExpanded: companyId != null,
                     title: Text(company.name),
                     subtitle: Text(
                       '${company.position} · ${statusLabels[company.status]}\n마감 ${company.deadlineDate ?? '미정'}${company.deadlineDate != null && company.deadlineDate!.compareTo(dateKey(DateTime.now())) < 0 ? ' · 기한 경과' : ''}',
@@ -54,6 +59,14 @@ class JobsScreen extends ConsumerWidget {
                             Wrap(
                               spacing: 8,
                               children: [
+                                TextButton(
+                                  onPressed: () => configureReminder(
+                                    context,
+                                    ref,
+                                    companyId: company.id,
+                                  ),
+                                  child: const Text('알림 설정/재예약'),
+                                ),
                                 TextButton(
                                   onPressed: () => editCompany(
                                     context,

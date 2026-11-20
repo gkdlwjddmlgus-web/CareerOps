@@ -4,6 +4,7 @@ import 'package:careerops/features/tasks/task_repository.dart';
 import 'package:careerops/core/utils/dates.dart';
 import 'package:careerops/features/study/study_repository.dart';
 import 'package:careerops/features/jobs/job_repository.dart';
+import 'package:careerops/core/notifications/notification_service.dart';
 import 'package:drift/native.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,7 @@ void main() {
           ),
           timerProvider.overrideWith((ref) => Stream.value(null)),
           tickProvider.overrideWith((ref) => const Stream.empty()),
+          notificationsProvider.overrideWith((ref) => Stream.value([])),
           companiesProvider.overrideWith((ref) => Stream.value(<Company>[])),
           eventsProvider.overrideWith(
             (ref) => Stream.value(<ApplicationEvent>[]),

@@ -5,6 +5,7 @@ import '../../core/database/database.dart';
 import '../../core/utils/dates.dart';
 import '../../core/widgets/common.dart';
 import 'task_repository.dart';
+import '../../core/notifications/reminder_dialog.dart';
 
 const categoryLabels = {'GENERAL': '일반', 'STUDY': '학습', 'JOB': '취업'};
 const priorities = ['낮음', '보통', '높음'];
@@ -47,6 +48,10 @@ class TaskList extends ConsumerWidget {
             trailing: PopupMenuButton<String>(
               tooltip: '할 일 메뉴',
               onSelected: (value) async {
+                if (value == 'reminder') {
+                  await configureReminder(context, ref, taskId: task.id);
+                  return;
+                }
                 if (value == 'delete') {
                   if (await confirm(context, '이 할 일을 삭제할까요?') &&
                       context.mounted) {
@@ -69,6 +74,11 @@ class TaskList extends ConsumerWidget {
                 }
               },
               itemBuilder: (_) => [
+                if (!task.isCompleted)
+                  const PopupMenuItem(
+                    value: 'reminder',
+                    child: Text('알림 설정/재예약'),
+                  ),
                 if (!task.isCompleted)
                   const PopupMenuItem(value: 'move', child: Text('다른 날짜로 이월')),
                 const PopupMenuItem(value: 'delete', child: Text('삭제')),

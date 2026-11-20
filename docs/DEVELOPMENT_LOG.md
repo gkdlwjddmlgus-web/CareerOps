@@ -67,3 +67,17 @@
 - 최초 UI 회귀 테스트는 화면 아래 항목을 스크롤하지 않아 FAIL. 스크롤로 동일 일정 표시를 확인하도록 수정.
 - format PASS. flutter analyze PASS(No issues found, 16.0초).
 - flutter test PASS(6개). 마감일 경계, 최초 지원일 유지, 이력 INSERT 실패 시 회사 상태까지 롤백 검증.
+
+## Phase 5 — 알림 및 백업 구현/자동 검증 완료
+
+- Android 권한 요청, UTC 절대 시각 알림(inexactAllowWhileIdle), 예약/취소/재예약, 부팅 수신기, 상세 경로 탭 이동.
+- 시작 시 DB 스트림 감시로 일정 완료/삭제·기업 종료 상태와 플랫폼 예약을 동기화. 알림 작업은 순차 처리.
+- 권한 거부/플랫폼 예약 실패는 알림 행을 미예약으로 유지하고 원본 계획을 보존한다.
+- JSON 버전/타입/UTC 시각/유효 날짜/참조 검사. 전체 복원은 트랜잭션, 실패 시 롤백.
+- 앱 복원 전 내부 안전 백업 생성. 파일 선택기로 백업 저장 및 복원.
+- 신규: core/backup/*, core/notifications/*, features/settings/*, test/database/backup_test.dart, notification_test.dart, Android 알림 아이콘.
+- 수정: main/router, tasks/jobs UI, pubspec 및 lock, Android manifest/Gradle, 위젯 테스트. 삭제 없음.
+- file_picker 13 API 변경과 deprecated 저장 인자를 수정.
+- pub get PASS. format PASS(27개). flutter analyze PASS(No issues found, 7.7초).
+- flutter test PASS(8개): 왕복 복원, 손상 JSON/버전/날짜/고아 FK 거부, 원본 보존, 알림 권한 거부/예약 실패/삭제 취소.
+- 실제 Android 알림/파일 선택/탭 동작은 아직 NOT RUN. Phase 6에서 에뮬레이터 검증 시도.
